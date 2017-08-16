@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Hello APP</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #main {
+            margin-top: 50px;
+        }
+
+        .icon {
+            width: 17.5px;
+            height: 17.5px;
+            margin-top: 5px;
+            margin-right: 7px;
+            /**/
+        }
+
+        header {
+            height: 50px;
+            background: #8c5ac0;
+            color: #fff;
+            line-height: 50px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+        }
+
+        .time {
+            /*font-size: 13px;*/
+        }
+
+        .list-info {
+            color: #9ac200;
+        }
+
+        .list-top {
+            height: 32px;
+            line-height: 32px;
+            border-bottom: 1px solid #f5f5f5;
+            margin-bottom: 5px;
+        }
+
+        .video-laoding {
+            height: 81px;
+            width: 101px;
+        }
+
+        .video-list {
+            margin: 20px 7.5px 0 7.5px;
+            padding: 9px;
+            border: 1px solid #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .video-info {
+            justify-content: space-between;
+            margin-left: 10px;
+        }
+
+        .right {
+            height: 21px;
+            width: 21px;
+        }
+
+        .right-box {
+            position: relative;
+            top: 35px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        视频列表
+    </header>
+    <div id='main' class="flex flex-col">
+
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/doT.min.js"></script>
+<script type="text/template" id='video-list'>
+    {{~it:data}}
+
+    <div class="video-list  flex-col" onclick="openVideo('{{=data.id}}')">
+        <div class="list-top flex">
+            <img src='../image/icon.png' class="icon"></img>
+            <div class="time flex-1">{{=data.courseTime}}</div>
+            <div class="list-info">{{=data.type.name}}</div>
+        </div>
+        <div class="list-main flex">
+            <img class='video-laoding' src='{{=data.cover.url}}' data-url='{{=data.cover.url}}' onload='imageCache(this)' alt="">
+            <div class="video-info flex flex-col flex-1">
+                <div class="video-title flex-1 ">
+                    {{=data.name}}
+                </div>
+
+                <div class="video-teacher ">
+                    {{=data.teacher}}
+                </div>
+            </div>
+            <div class="right-box">
+                <img class='right ' src="../image/right.png" alt="">
+            </div>
+
+        </div>
+    </div>
+
+    {{~}}
+</script>
+<script type="text/javascript">
+    var skip = 0;
+    apiready = function() {
+        init();
+    };
+
+    function init() {
+        getVideoList();
+        load_more();
+        api.setRefreshHeaderInfo({
+            visible: true,
+            bgColor: '#f1f3f7',
+            textColor: '#444',
+            showTime: false
+        }, function(ret, err) {
+            getVideoList(false);
+        });
+    };
+function openVideo(id){
+  // console.log(id);
+    api.openWin({
+        name: 'video',
+        url: 'video_details.html',
+        pageParam: {
+            id: id
+        }
+    });
+
+}
+    function getVideoList(load_more) {
+
+        var data = {
+            fields: {},
+            where: {},
+            include: ['typePointer'],
+            skip: load_more ? skip : 0,
+            limit: 5
+        };
+        api.ajax({
+            url: 'http://d.apicloud.com/mcm/api/video?filter=' + JSON.stringify(data),
+            method: 'get',
+            headers: {
+                "X-APICloud-AppId": "A6922938320433",
+                "X-APICloud-AppKey": "bf08237883477a7a6b88b41b0c55ceb7f6839a84.1477487496656"
+            }
+
+        }, function(ret, err) {
+            if (ret[0].name) {
+                // console.log(JSON.stringify(ret));
+                var dotTem = doT.template($api.dom('#video-list').innerHTML);
+                dotTem = dotTem(ret);
+                if (load_more) {
+                    $api.append($api.dom('#main'), dotTem)
+                } else {
+                    $api.html($api.dom('#main'), dotTem)
+                }
+            } else if(!ret[0].name &&ret[0]) {
+                alert('没有更多了');
+            } else {
+                // console.log('err:' + JSON.stringify(err));
+                alert('错误'+JSON.stringify(err));
+            }
+        });
+    };
+
+    function load_more() {
+        api.addEventListener({
+            name: 'scrolltobottom',
+            extra: {
+                threshold: 50 //设置距离底部多少距离时触发，默认值为0，数字类型
+            }
+        }, function(ret, err) {
+            skip += 5;
+            getVideoList(true);
+        });
+    };
+
+    //缓存图片
+    function imageCache(ele_) {
+        var url = $api.attr(ele_, 'data-url');
+        if (url) {
+            api.imageCache({
+                url: url
+            }, function(ret, err) {
+                if (ret && ret.status) {
+                    ele_.src = ret.url;
+                    $api.removeAttr(ele_, 'data-url');
+                }
+            });
+        }
+    }
+</script>
+
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>Hello APP</title>
+    <link rel="stylesheet" type="text/css" href="../css/api.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #main {
+            margin-top: 50px;
+            padding: 20px;
+        }
+
+        header {
+            height: 50px;
+            background: #8c5ac0;
+            color: #fff;
+            line-height: 50px;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+        }
+
+        .just-space {
+            justify-content: space-between;
+            margin-bottom: 60px;
+        }
+
+        .title {
+            font-size: 18px;
+        }
+
+        .details {}
+
+        .btn {
+            background: #8c5ac0;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            border-radius: 5px;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        视频初体验
+    </header>
+    <div id='main' class="flex flex-col">
+        <div class="time flex just-space">
+            <div class="title flex-1">课程时间</div>
+            <div class="details">201220==1201200</div>
+        </div>
+        <div class="teacher flex just-space">
+            <div class="title flex-1">课程时间</div>
+            <div class="details">201220==1201200</div>
+        </div>
+
+        <div class="theme flex just-space">
+            <div class="title flex-1">课程时间</div>
+            <div class="details">201220==1201200</div>
+        </div>
+
+        <div class="info flex just-space flex-1">
+            <div class="title flex-1">课程时间</div>
+            <div class="details">201220==1201200</div>
+        </div>
+
+        <div class="btn" onclick="play()">进入视频</div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/doT.min.js"></script>
+
+<script type="text/javascript">
+    var skip = 0;
+    apiready = function() {
+        init();
+    };
+
+    function init() {
+        getData();
+    };
+
+    function getData() {
+        var data = {
+            fields: {},
+            where: {
+                id: api.pageParam.id,
+            },
+            include: ['videoTypePointer'],
+            skip: 0,
+            limit: 1
+        };
+        api.ajax({
+            url: 'http://d.apicloud.com/mcm/api/video?filter=' + JSON.stringify(data),
+            method: 'get',
+            headers: {
+                "X-APICloud-AppId": "A6922938320433",
+                "X-APICloud-AppKey": "bf08237883477a7a6b88b41b0c55ceb7f6839a84.1477487496656"
+            },
+        }, function(ret, err) {
+            if (ret) {
+                alert(JSON.stringify(ret));
+            } else {
+                //alert(JSON.stringify(err));
+                console.log(JSON.stringify(err));
+            }
+        });
+
+    };
+
+    function play() {
+        var videoPlayer = api.require('videoPlayer');
+        videoPlayer.play({
+            texts: {
+                head: {
+                    title: 'ApiCloud初体验'
+                }
+            },
+            styles: {
+                head: {
+                    bg: 'rgba(0.5,0.5,0.5,0.7)',
+                    height: 44,
+                    titleSize: 20,
+                    titleColor: '#fff',
+                    backSize: 20,
+                    backImg: 'fs://img/back.png',
+                    setSize: 20,
+                    setImg: 'fs://img/set.png'
+                },
+                foot: {
+                    bg: 'rgba(0.5,0.5,0.5,0.7)',
+                    height: 20,
+                    playSize: 20,
+                    playImg: 'fs://img/back.png',
+                    pauseImg: 'fs://img/back.png',
+                    nextSize: 20,
+                    nextImg: 'fs://img/back.png',
+                    timeSize: 14,
+                    timeColor: '#fff',
+                    sliderImg: 'fs://img/slder.png',
+                    progressColor: '#696969',
+                    progressSelected: '#76EE00'
+                }
+            },
+            path: 'http://7o50kb.com2.z0.glb.qiniucdn.com/c1.1.mp4', //（可选项）字符串类型；文档的路径，支持网络和本地（fs://）路径；默认：未传值时不播放
+            //在 android 平台上不支持 widget://
+            autoPlay: true //（可选项）布尔类型；打开时是否自动播放；默认：true（自动播放）
+        }, function(ret, err) {
+            if (ret) {
+                // alert(JSON.stringify(ret));
+            } else {
+                // alert(JSON.stringify(err));
+            }
+        });
+
+        //
+
+    };
+</script>
+
+</html>
